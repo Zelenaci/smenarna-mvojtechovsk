@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
+from cgitb import text
 from os.path import basename, splitext
 import tkinter as tk
+
+from setuptools import Command
 
 # from tkinter import ttk
 
@@ -23,6 +26,7 @@ class Application(tk.Tk):
     name = "Směnárna"
     
     def __init__(self):
+
         super().__init__(className=self.name)
         v = tk.IntVar(self)
         self.title(self.name)
@@ -34,21 +38,50 @@ class Application(tk.Tk):
         self.radioBtn2.pack()
         self.listBox = tk.Listbox(self)
         self.listBox.pack()
+        self.listBox.bind("<ButtonRelease-1>", self.onClick)
         self.bind("<Escape>", self.quit)
-        self.btn = tk.Button(self, text="Quit", command=self.quit)
-        self.btn.pack()
         self.listBoxFill()
         self.lbl2 = tk.Label(self, text="Kurz")
         self.lbl2.pack()
-        listbox.bind( "<1>", None)
-        listbox.bind( "<ButtonRelease-1>", klik)  # metoda se volá až po uvolnění myši
+        self.amount = tk.IntVar()
+        self.price = tk.IntVar()
+        self.vysledek = tk.IntVar()
+        self.amountLbl= tk.Label(self, textvariable= self.amount) 
+        self.amountLbl.pack()
+        self.priceLbl= tk.Label(self, textvariable= self.price) 
+        self.priceLbl.pack()  
+        self.entry = tk.Entry(self) 
+        self.entry.pack()
+        self.vypocet = tk.Button(self, text="Výpočet", command=self.vypocet)
+        self.vypocet.pack()
+        self.btn = tk.Button(self, text="Quit", command=self.quit)
+        self.btn.pack()
+        self.vysledekLbl= tk.Label(self, textvariable= self.vysledek) 
+        self.vysledekLbl.pack()
+        
         
 
 
+    def vypocet(self):  
+        e = self.entry.get()
+        a = self.amount.get()
+        p = self.price.get()
+        self.vysledekVar = round(e*p/a)
+        self.vysledek.set(self.vysledekVar)
+        ##print()
 
-    def klik(param):
-        souradnice="@"+str(param.x)+","+str(param.y)    
-        print (listbox.get(souradnice))
+
+    def onClick(self, event):
+        index = self.listBox.curselection()[0]
+        f = open("listek.txt")
+        self.lines = f.readlines()
+        self.amountVar = self.lines[index].split()[1]
+        self.amount.set(self.amountVar)
+        self.priceVar = self.lines[index].split()[2] 
+        self.price.set(self.priceVar)
+      
+  
+        
 
 
     def quit(self, event=None):
@@ -59,9 +92,9 @@ class Application(tk.Tk):
         f = open('listek.txt', 'r')
         slovnik = {}
         for line in f:
-            self.listBox.insert(0,line.split()[0])
+            self.listBox.insert(tk.END,line.split()[0])
             slovnik[line.split()[0]] = (line.split()[1:])
-        print(slovnik)    
+         
         
 
 
