@@ -5,6 +5,7 @@ from os.path import basename, splitext
 import tkinter as tk
 
 from setuptools import Command
+import numpy
 
 # from tkinter import ttk
 
@@ -28,14 +29,15 @@ class Application(tk.Tk):
     def __init__(self):
 
         super().__init__(className=self.name)
-        v = tk.IntVar(self)
+        self.v = tk.IntVar(self)
         self.title(self.name)
         self.lbl = tk.Label(self, text="Směnárna")
         self.lbl.pack()
-        self.radioBtn1 = tk.Radiobutton( self, text="Nákup",variable=v, value=1)
+        self.radioBtn1 = tk.Radiobutton( self, text="Nákup",variable=self.v, value=1)
         self.radioBtn1.pack()
-        self.radioBtn2 = tk.Radiobutton( self, text="Prodej",variable=v, value=2)
+        self.radioBtn2 = tk.Radiobutton( self, text="Prodej",variable=self.v, value=2)
         self.radioBtn2.pack()
+        self.v.set(1)
         self.listBox = tk.Listbox(self)
         self.listBox.pack()
         self.listBox.bind("<ButtonRelease-1>", self.onClick)
@@ -44,7 +46,7 @@ class Application(tk.Tk):
         self.lbl2 = tk.Label(self, text="Kurz")
         self.lbl2.pack()
         self.amount = tk.IntVar()
-        self.price = tk.IntVar()
+        self.price = tk.StringVar()
         self.vysledek = tk.IntVar()
         self.amountLbl= tk.Label(self, textvariable= self.amount) 
         self.amountLbl.pack()
@@ -52,24 +54,21 @@ class Application(tk.Tk):
         self.priceLbl.pack()  
         self.entry = tk.Entry(self) 
         self.entry.pack()
-        self.vypocet = tk.Button(self, text="Výpočet", command=self.vypocet)
-        self.vypocet.pack()
-        self.btn = tk.Button(self, text="Quit", command=self.quit)
-        self.btn.pack()
         self.vysledekLbl= tk.Label(self, textvariable= self.vysledek) 
         self.vysledekLbl.pack()
-        
+        self.btn = tk.Button(self, text="Quit", command=self.quit)
+        self.btn.pack()
+        self.bind("<ButtonRelease>", self.vypocetFce)
         
 
 
-    def vypocet(self):  
-        e = self.entry.get()
-        a = self.amount.get()
-        p = self.price.get()
-        self.vysledekVar = round(e*p/a)
+    def vypocetFce(self,event=None):  
+        e= int(self.entry.get())
+        a = int(self.amount.get())
+        p = float(self.price.get().replace(",","."))
+        self.vysledekVar = float(numpy.ceil(e*p/a))   
         self.vysledek.set(self.vysledekVar)
-        ##print()
-
+    
 
     def onClick(self, event):
         index = self.listBox.curselection()[0]
@@ -77,7 +76,10 @@ class Application(tk.Tk):
         self.lines = f.readlines()
         self.amountVar = self.lines[index].split()[1]
         self.amount.set(self.amountVar)
-        self.priceVar = self.lines[index].split()[2] 
+        if self.v.get() == 1: 
+            self.priceVar = self.lines[index].split()[3] 
+        else:
+            self.priceVar = self.lines[index].split()[2] 
         self.price.set(self.priceVar)
       
   
