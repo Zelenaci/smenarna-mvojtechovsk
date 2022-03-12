@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from cgitb import text
+from operator import truth
 from os.path import basename, splitext
 import tkinter as tk
 
@@ -59,15 +60,24 @@ class Application(tk.Tk):
         self.btn = tk.Button(self, text="Quit", command=self.quit)
         self.btn.pack()
         self.bind("<ButtonRelease>", self.vypocetFce)
-        
+       
 
-
-    def vypocetFce(self,event=None):  
-        e= int(self.entry.get())
-        a = int(self.amount.get())
+    def vypocetFce(self,event=None):
+        try:
+            e= int(self.entry.get())
+            a = int(self.amount.get())
+        except ValueError:
+            pass  
         p = float(self.price.get().replace(",","."))
-        self.vysledekVar = float(numpy.ceil(e*p/a))   
-        self.vysledek.set(self.vysledekVar)
+        try:
+            self.vysledekVar = float(numpy.ceil(e*p/a))   
+        except UnboundLocalError:
+            pass   
+        try:
+            self.vysledek.set(self.vysledekVar)   
+        except AttributeError:
+            pass         
+        
     
 
     def onClick(self, event):
